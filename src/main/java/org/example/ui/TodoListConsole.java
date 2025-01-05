@@ -2,15 +2,20 @@ package org.example.ui;
 
 import org.example.core.TodoService;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class TodoListConsole {
-    private final TodoService todoService;
+    private final Map<Integer, Command> commands = new HashMap<>();
     private final Scanner scanner = new Scanner(System.in);
+    private final TodoService todoService;
 
     public TodoListConsole(TodoService todoService) {
         this.todoService = todoService;
+        commands.put(1, new AddCommand(todoService, scanner));
+        commands.put(2, new DeleteCommand(todoService, scanner));
     }
 
     public void showActivity() {
@@ -26,25 +31,22 @@ public class TodoListConsole {
     }
 
     public void run() {
-        boolean loop = true;
+        var loop = true;
         while (loop) {
             showActivity();
-            int choice = scanner.nextInt();
+            var choice = scanner.nextInt();
             scanner.nextLine(); // 버퍼 제거
-            switch (choice) {
-                case 1 -> {
-                    System.out.print("추가할 내용을 입력하세요: ");
-                    String todo = scanner.nextLine();
-                    todoService.addTodo(todo);
-                }
-                case 2 -> {
-                    System.out.print("삭제할 번호를 입력하세요: ");
-                    int index = scanner.nextInt();
-                    todoService.deleteTodo(index);
-                }
-                case 3 -> loop = false;
-                default -> System.out.println("유효한 선택이 아닙니다.");
+            var command = commands.get(choice);
+
+            if (command == null) {
+                System.out.println("유효한 선택이 아닙니다.");
+                continue;
             }
+            if (choice == 3) {
+                loop = false;
+                continue;
+            }
+            command.execute();
         }
     }
 }
