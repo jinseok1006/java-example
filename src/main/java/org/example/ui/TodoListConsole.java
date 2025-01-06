@@ -38,14 +38,16 @@ public class TodoListConsole {
             scanner.nextLine(); // 버퍼 제거
             var command = commands.get(choice);
 
+            if (choice == 3) { // 종료하기
+                loop = false;
+                continue;
+            }
+
             if (command == null) {
                 System.out.println("유효한 선택이 아닙니다.");
                 continue;
             }
-            if (choice == 3) {
-                loop = false;
-                continue;
-            }
+
             command.execute();
         }
     }
